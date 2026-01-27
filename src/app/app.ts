@@ -13,11 +13,22 @@ import { RouterOutlet } from '@angular/router';
         </div>
         
         <div class="flex items-center justify-center w-full px-2">
-          <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold pixel-font text-white tracking-wider break-words">
+          <h1 
+            (click)="spawnPig()"
+            class="text-2xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold pixel-font text-white tracking-wider break-words cursor-pointer hover:scale-105 transition-transform">
             {{ displayText() }}<span class="cursor">|</span>
           </h1>
         </div>
       </div>
+
+      @if (showPig()) {
+        <div 
+          class="pig-container"
+          [style.left.px]="pigX()"
+          [style.top.px]="pigY()">
+          🐷
+        </div>
+      }
     </div>
 
     <router-outlet />
@@ -82,11 +93,43 @@ import { RouterOutlet } from '@angular/router';
         transform: translate(2px, 2px);
       }
     }
+
+    .pig-container {
+      position: fixed;
+      font-size: 3rem;
+      animation: pigBounce 0.5s ease-out, pigFade 5s ease-out forwards;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes pigBounce {
+      0% {
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        transform: scale(1.3) rotate(180deg);
+      }
+      100% {
+        transform: scale(1) rotate(360deg);
+      }
+    }
+
+    @keyframes pigFade {
+      0%, 80% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
   `],
 })
 export class App implements OnInit {
   protected readonly title = signal('hello-world');
   protected readonly displayText = signal('');
+  protected readonly showPig = signal(false);
+  protected readonly pigX = signal(0);
+  protected readonly pigY = signal(0);
   private readonly fullText = 'HELLO WORLD';
   private currentIndex = 0;
 
@@ -100,5 +143,20 @@ export class App implements OnInit {
       this.currentIndex++;
       setTimeout(() => this.typeText(), 150);
     }
+  }
+
+  protected spawnPig() {
+    // Prevent spam clicking - only spawn if no pig is currently visible
+    if (this.showPig()) {
+      return;
+    }
+    
+    this.pigX.set(Math.random() * (window.innerWidth - 100));
+    this.pigY.set(Math.random() * (window.innerHeight - 100));
+    this.showPig.set(true);
+    
+    setTimeout(() => {
+      this.showPig.set(false);
+    }, 5000);
   }
 }
