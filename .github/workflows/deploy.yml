@@ -37,7 +37,7 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm run build --base-href=/hello-world/
+        run: pnpm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
